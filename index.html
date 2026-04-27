@@ -54,7 +54,7 @@ body {
   opacity: 0.7;
 }
 
-/* ⏳ таймер (меньше, чем дата) */
+/* ⏳ таймер */
 .countdown {
   margin-top: 15px;
   font-size: 1.4em;
@@ -62,11 +62,11 @@ body {
   opacity: 0.8;
 }
 
-/* СЕКЦИИ */
+/* СЕКЦИИ — увеличили расстояние */
 .section {
   max-width: 800px;
   margin: 0 auto;
-  padding: 120px 20px;
+  padding: 200px 20px;
   text-align: center;
 }
 
@@ -182,7 +182,6 @@ window.onload = function() {
   resize();
   window.addEventListener('resize', resize);
 
-  // ⭐ звезды
   let stars = [];
 
   for (let i = 0; i < 120; i++) {
@@ -216,7 +215,6 @@ window.onload = function() {
 
   draw();
 
-  // ✨ каскадное появление
   const fades = document.querySelectorAll('.fade');
 
   const observer = new IntersectionObserver((entries) => {
@@ -237,7 +235,6 @@ window.onload = function() {
 
   fades.forEach(el => observer.observe(el));
 
-  // ⏳ таймер
   const countdown = document.getElementById('countdown');
   const weddingDate = new Date('2027-07-17T16:00:00');
 
@@ -264,7 +261,6 @@ window.onload = function() {
   setInterval(updateCountdown, 1000);
 };
 
-// 💌 RSVP
 function send() {
   const name = document.getElementById('name').value;
 
