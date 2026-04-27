@@ -26,7 +26,6 @@ body {
   z-index: -1;
 }
 
-/* контейнер */
 .container {
   position: relative;
   z-index: 1;
@@ -69,18 +68,53 @@ body {
   border-radius: 20px;
   backdrop-filter: blur(10px);
   line-height: 1.6;
+  transition: 0.6s;
 }
 
-/* анимация */
+/* ✨ АНИМАЦИЯ (круче чем просто fade) */
 .fade {
   opacity: 0;
-  transform: translateY(40px);
-  transition: 1s ease;
+  transform: translateY(60px) scale(0.98);
+  filter: blur(10px);
 }
 
 .fade.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* задержка для “каскада” */
+.fade:nth-child(1) { transition-delay: 0.1s; }
+.fade:nth-child(2) { transition-delay: 0.3s; }
+.fade:nth-child(3) { transition-delay: 0.5s; }
+
+/* RSVP */
+.rsvp input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 15px;
+  width: 250px;
+  background: rgba(255,255,255,0.08);
+  color: white;
+}
+
+.rsvp button {
+  margin-top: 15px;
+  padding: 12px 24px;
+  border-radius: 25px;
+  border: none;
+  background: linear-gradient(45deg, #7b6cff, #9d8cff);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.rsvp button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(140,120,255,0.5);
 }
 </style>
 </head>
@@ -97,33 +131,32 @@ body {
     <p>17 июля 2027</p>
   </div>
 
-  <!-- БЛОК 1 -->
+  <!-- БЛОКИ -->
   <div class="section fade">
     <div class="block">
-      <p>
-        Всё началось с одного взгляда.  
-        И вдруг обычные дни стали особенными.
-      </p>
+      <p>Всё началось с одного взгляда. И вдруг обычные дни стали особенными.</p>
     </div>
   </div>
 
-  <!-- БЛОК 2 -->
   <div class="section fade">
     <div class="block">
-      <p>
-        Мы нашли друг друга —  
-        и теперь хотим разделить этот день с вами.
-      </p>
+      <p>Мы нашли друг друга — и теперь хотим разделить этот день с вами.</p>
     </div>
   </div>
 
-  <!-- БЛОК 3 -->
   <div class="section fade">
     <div class="block">
-      <p>
-        Когда солнце скроется за горизонтом,  
-        начнётся наша новая история.
-      </p>
+      <p>Когда солнце скроется за горизонтом, начнётся наша новая история.</p>
+    </div>
+  </div>
+
+  <!-- RSVP -->
+  <div class="section fade">
+    <div class="block rsvp">
+      <p>Будете с нами в этот день?</p>
+      <input id="name" placeholder="Ваше имя">
+      <br>
+      <button onclick="send()">Я приду</button>
     </div>
   </div>
 
@@ -145,7 +178,7 @@ window.onload = function() {
   resize();
   window.addEventListener('resize', resize);
 
-  // звезды
+  // ⭐ звезды
   let stars = [];
 
   for (let i = 0; i < 120; i++) {
@@ -179,7 +212,7 @@ window.onload = function() {
 
   draw();
 
-  // появление блоков
+  // ✨ появление блоков
   const fades = document.querySelectorAll('.fade');
 
   const obs = new IntersectionObserver(entries => {
@@ -192,6 +225,16 @@ window.onload = function() {
 
   fades.forEach(el => obs.observe(el));
 };
+
+// 💌 кнопка (пока локально)
+function send() {
+  const name = document.getElementById('name').value;
+  if(!name) {
+    alert("Введите имя 😊");
+    return;
+  }
+  alert("Спасибо, " + name + " 💜");
+}
 </script>
 
 </body>
