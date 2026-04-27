@@ -11,9 +11,17 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: #07070d;
+  background: #05050a;
   color: white;
   overflow-x: hidden;
+}
+
+/* 🌌 ЗВЁЗДЫ */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
 }
 
 /* HERO */
@@ -24,15 +32,7 @@ body {
   align-items: center;
   text-align: center;
   position: relative;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(120,100,255,0.25), transparent 70%);
-  filter: blur(120px);
+  z-index: 1;
 }
 
 .hero h1 {
@@ -45,7 +45,6 @@ body {
 .hero p {
   margin-top: 20px;
   opacity: 0.7;
-  font-size: 1.2em;
 }
 
 /* SECTION */
@@ -53,8 +52,11 @@ body {
   padding: 120px 20px;
   max-width: 900px;
   margin: auto;
+  position: relative;
+  z-index: 1;
 }
 
+/* АНИМАЦИЯ */
 .fade {
   opacity: 0;
   transform: translateY(60px);
@@ -66,7 +68,7 @@ body {
   transform: translateY(0);
 }
 
-/* BLOCK */
+/* КАРТОЧКИ */
 .block {
   margin-top: 40px;
   padding: 40px;
@@ -76,14 +78,7 @@ body {
   backdrop-filter: blur(20px);
 }
 
-/* COUNTDOWN */
-.countdown {
-  font-size: 2em;
-  margin-top: 20px;
-  letter-spacing: 2px;
-}
-
-/* BUTTON */
+/* КНОПКА */
 button {
   margin-top: 20px;
   padding: 14px 28px;
@@ -92,22 +87,13 @@ button {
   background: linear-gradient(45deg, #7b6cff, #9d8cff);
   color: white;
   cursor: pointer;
-  font-size: 1em;
-  transition: 0.3s;
 }
 
-button:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 25px rgba(140,120,255,0.5);
-}
-
-/* INPUT */
 input {
   padding: 12px;
   border-radius: 10px;
   border: none;
   margin-top: 10px;
-  width: 250px;
   background: rgba(255,255,255,0.08);
   color: white;
 }
@@ -116,26 +102,19 @@ input {
 
 <body>
 
+<canvas id="stars"></canvas>
+
 <div class="hero">
   <div>
     <h1>Марта & Максим</h1>
     <p>17 июля 2027</p>
-    <div class="countdown" id="countdown"></div>
   </div>
 </div>
 
 <div class="section fade">
-  <h2>Это началось в один обычный день…</h2>
+  <h2>Это началось...</h2>
   <div class="block">
-    <p>И стало историей, которую мы хотим разделить с вами.</p>
-  </div>
-</div>
-
-<div class="section fade">
-  <h2>Детали вечера</h2>
-  <div class="block">
-    <p>Моринское агроусадьба</p>
-    <p>Начало в 16:00</p>
+    <p>И стало историей, которую мы хотим разделить с вами</p>
   </div>
 </div>
 
@@ -149,7 +128,47 @@ input {
 </div>
 
 <script>
-/* появление блоков */
+/* 🌌 ЗВЁЗДНОЕ НЕБО */
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars = [];
+
+for (let i = 0; i < 120; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2,
+    speed: Math.random() * 0.3
+  });
+}
+
+function drawStars() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  stars.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    s.y += s.speed;
+
+    if (s.y > canvas.height) {
+      s.y = 0;
+      s.x = Math.random() * canvas.width;
+    }
+  });
+
+  requestAnimationFrame(drawStars);
+}
+
+drawStars();
+
+/* Появление */
 const fades = document.querySelectorAll('.fade');
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -158,21 +177,6 @@ const obs = new IntersectionObserver(entries => {
 });
 fades.forEach(el => obs.observe(el));
 
-/* таймер */
-const countdown = document.getElementById('countdown');
-const weddingDate = new Date('2027-07-17');
-
-setInterval(() => {
-  const now = new Date();
-  const diff = weddingDate - now;
-
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor(diff / (1000*60*60)) % 24;
-
-  countdown.innerHTML = days + " дней " + hours + " часов";
-}, 1000);
-
-/* кнопка */
 function send() {
   const name = document.getElementById('name').value;
   alert("Спасибо, " + name + " 💜");
