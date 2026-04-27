@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Марта & Максим</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
 
 <style>
 body {
@@ -16,46 +17,62 @@ body {
   overflow-x: hidden;
 }
 
-/* canvas */
+/* ⭐ canvas */
 #canvas {
   position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 5;
+  top:0;
+  left:0;
+  z-index:0;
 }
 
-/* ОСНОВНОЙ САЙТ */
-.main {
+/* контент */
+.content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .section {
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
 }
 
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 4em;
+.block {
+  background: rgba(255,255,255,0.06);
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+h1 {
+  font-family: 'Playfair Display';
+  font-size: 60px;
+}
+
+/* таймер */
+#countdown {
+  margin-top:10px;
+  font-size:18px;
+  opacity:0.8;
 }
 
 /* 💥 вспышка */
 .flash {
   position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width:10px;
+  height:10px;
+  border-radius:50%;
   background: radial-gradient(circle, white, transparent);
-  z-index: 8;
-  animation: flash 0.7s ease-out forwards;
+  pointer-events:none;
+  z-index: 5;
+  animation: flash 0.8s ease-out forwards;
 }
 
 @keyframes flash {
-  from { transform: scale(1); opacity: 1; }
-  to { transform: scale(25); opacity: 0; }
+  from { transform: scale(1); opacity:1; }
+  to { transform: scale(25); opacity:0; }
 }
 
 /* 🌑 затемнение */
@@ -67,62 +84,65 @@ body {
   height:100%;
   background:black;
   opacity:0;
-  transition: 0.8s;
-  z-index: 9;
+  transition: 0.6s;
+  z-index:4;
+  pointer-events:none;
 }
 
 .fade.active {
   opacity:1;
 }
 
-/* 🆕 НОВАЯ СЦЕНА */
-.new-scene {
+/* 🆕 сцена */
+.scene2 {
   position: fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  background: #f3efe8;
+  background:#f3efe8;
   color:#222;
-  display:none;
-  z-index: 10;
+  z-index:6;
+  opacity:0;
+  pointer-events:none;
+  transition: 0.6s;
   overflow-y:auto;
   padding:40px 20px;
 }
 
-.new-scene.active {
-  display:block;
+.scene2.active {
+  opacity:1;
+  pointer-events:auto;
 }
 
 /* карточки */
 .cards {
-  max-width: 900px;
-  margin: auto;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
 }
 
 .card {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  width: 280px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  animation: appear 1s ease;
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  width:280px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  animation: fadeUp 1s ease;
 }
 
-@keyframes appear {
-  from { transform: translateY(40px); opacity:0; }
-  to { transform: translateY(0); opacity:1; }
+@keyframes fadeUp {
+  from {opacity:0; transform:translateY(30px);}
+  to {opacity:1; transform:translateY(0);}
 }
 
-.back-btn {
-  position: fixed;
+.back {
+  position:fixed;
   top:20px;
   left:20px;
-  font-size:20px;
   cursor:pointer;
 }
 </style>
@@ -131,43 +151,48 @@ body {
 <body>
 
 <canvas id="canvas"></canvas>
+
 <div class="fade" id="fade"></div>
 
-<!-- 🌌 ОСНОВНОЙ САЙТ -->
-<div class="main" id="main">
-  <div class="section hero">
+<div class="content">
+
+  <div class="section">
     <div>
       <h1>Марта & Максим</h1>
       <p>17 июля 2027</p>
+      <div id="countdown"></div>
     </div>
   </div>
 
-  <div class="section">Всё началось с одного взгляда</div>
-  <div class="section">Мы нашли друг друга</div>
-  <div class="section">И хотим разделить этот день с вами</div>
+  <div class="section">
+    <div class="block">Всё началось с одного взгляда</div>
+  </div>
+
+  <div class="section">
+    <div class="block">Мы нашли друг друга</div>
+  </div>
+
+  <div class="section">
+    <div class="block">И хотим разделить этот день с вами</div>
+  </div>
+
 </div>
 
-<!-- ✨ НОВЫЙ ЭКРАН -->
-<div class="new-scene" id="scene2">
-  <div class="back-btn" onclick="goBack()">←</div>
+<!-- новая сцена -->
+<div class="scene2" id="scene2">
+  <div class="back" onclick="closeScene()">← назад</div>
 
   <div class="cards">
     <div class="card">
       <h2>Wedding day</h2>
       <p>17 / 07 / 2027</p>
-      <p>Марта & Максим</p>
     </div>
 
     <div class="card">
       <h3>Программа</h3>
-      <p>15:30 — сбор гостей</p>
-      <p>16:00 — церемония</p>
-      <p>18:30 — банкет</p>
-    </div>
-
-    <div class="card">
-      <h3>Дресс-код</h3>
-      <p>Пастельные оттенки, лёгкий стиль</p>
+      <p>15:30 сбор</p>
+      <p>16:00 церемония</p>
+      <p>18:30 банкет</p>
     </div>
 
     <div class="card">
@@ -181,7 +206,8 @@ body {
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-let w, h;
+let w,h;
+
 function resize(){
   w = canvas.width = window.innerWidth;
   h = canvas.height = window.innerHeight;
@@ -189,85 +215,89 @@ function resize(){
 resize();
 window.addEventListener('resize', resize);
 
-/* ⭐ */
+/* ⭐ звезды */
 let stars = [];
-for(let i=0;i<150;i++){
-  stars.push({x:Math.random()*w,y:Math.random()*h});
+for(let i=0;i<120;i++){
+  stars.push({
+    x:Math.random()*w,
+    y:Math.random()*h
+  });
 }
 
-/* ☄️ */
+/* ☄️ кометы */
 let comets = [];
 
 function createComet(){
   comets.push({
     x: Math.random()*w*0.7,
     y: -50,
-    vx: 1,
-    vy: 1,
-    len:120
+    vx: 0.8,
+    vy: 0.8
   });
 }
 
-/* 💥 */
-function flash(x,y){
-  const f = document.createElement('div');
-  f.className = 'flash';
-  f.style.left = x+'px';
-  f.style.top = y+'px';
-  document.body.appendChild(f);
-  setTimeout(()=>f.remove(),700);
-}
-
-/* 🎯 КЛИК */
-canvas.addEventListener('click', (e)=>{
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+/* 🎯 КЛИК ЧЕРЕЗ WINDOW (ключевой фикс) */
+window.addEventListener('click', (e)=>{
+  const mx = e.clientX;
+  const my = e.clientY;
 
   comets.forEach(c=>{
-    const dist = Math.hypot(mx-c.x, my-c.y);
+    const dist = Math.hypot(mx - c.x, my - c.y);
 
-    if(dist < 50){
+    if(dist < 60){
       flash(mx,my);
-
-      // затемнение
-      document.getElementById('fade').classList.add('active');
-
-      // смена сцены
-      setTimeout(()=>{
-        document.getElementById('main').style.display='none';
-        document.getElementById('scene2').classList.add('active');
-      },600);
+      openScene();
     }
   });
 });
 
-/* 🎬 draw */
+/* 💥 */
+function flash(x,y){
+  const f = document.createElement('div');
+  f.className='flash';
+  f.style.left=x+'px';
+  f.style.top=y+'px';
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(),800);
+}
+
+/* 🎬 сцена */
+function openScene(){
+  document.getElementById('fade').classList.add('active');
+
+  setTimeout(()=>{
+    document.getElementById('scene2').classList.add('active');
+  },400);
+}
+
+function closeScene(){
+  document.getElementById('scene2').classList.remove('active');
+
+  setTimeout(()=>{
+    document.getElementById('fade').classList.remove('active');
+  },300);
+}
+
+/* 🎨 draw */
 function draw(){
   ctx.clearRect(0,0,w,h);
 
   // звезды
   stars.forEach(s=>{
-    ctx.fillStyle="white";
+    ctx.fillStyle='white';
     ctx.fillRect(s.x,s.y,1,1);
   });
 
   // кометы
   comets.forEach((c,i)=>{
-    const g = ctx.createLinearGradient(c.x,c.y,c.x-c.len,c.y-c.len);
-    g.addColorStop(0,"white");
-    g.addColorStop(1,"transparent");
-
-    ctx.strokeStyle=g;
-    ctx.lineWidth=2;
-
+    ctx.strokeStyle='white';
     ctx.beginPath();
     ctx.moveTo(c.x,c.y);
-    ctx.lineTo(c.x-c.len,c.y-c.len);
+    ctx.lineTo(c.x-80,c.y-80);
     ctx.stroke();
 
-    c.x += c.vx;
-    c.y += c.vy;
+    c.x+=c.vx;
+    c.y+=c.vy;
 
     if(c.y>h+100) comets.splice(i,1);
   });
@@ -276,18 +306,19 @@ function draw(){
 }
 draw();
 
-/* запуск */
-setInterval(()=>{ if(Math.random()>0.4) createComet(); },3000);
+setInterval(()=>{ if(Math.random()>0.5) createComet(); },3000);
 
-/* назад */
-function goBack(){
-  document.getElementById('scene2').classList.remove('active');
-  document.getElementById('main').style.display='block';
+/* ⏳ таймер */
+const el = document.getElementById('countdown');
+const date = new Date('2027-07-17');
 
-  setTimeout(()=>{
-    document.getElementById('fade').classList.remove('active');
-  },200);
+function update(){
+  const diff = date - new Date();
+  const days = Math.floor(diff/1000/60/60/24);
+  el.innerHTML = days + " дней";
 }
+setInterval(update,1000);
+update();
 </script>
 
 </body>
