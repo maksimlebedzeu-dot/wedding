@@ -13,34 +13,30 @@ body {
   font-family: 'Inter', sans-serif;
   background: #05050a;
   color: white;
-  overflow-x: hidden;
 }
 
-canvas {
+/* ✅ canvas теперь сверху */
+#canvas {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 5;
 }
 
-/* секции */
+/* контент ниже */
 .section {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  z-index: 1;
   position: relative;
+  z-index: 1;
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 4em;
-}
-
-.countdown {
-  margin-top: 15px;
-  font-size: 1.3em;
 }
 
 .block {
@@ -72,14 +68,12 @@ canvas {
   color: #222;
   padding: 30px;
   border-radius: 20px;
-  text-align: center;
 }
 
 .close {
   position: absolute;
   top: 30px;
   left: 30px;
-  font-size: 24px;
   cursor: pointer;
 }
 </style>
@@ -93,7 +87,6 @@ canvas {
   <div>
     <h1>Марта & Максим</h1>
     <p>17 июля 2027</p>
-    <div id="countdown"></div>
   </div>
 </div>
 
@@ -114,7 +107,6 @@ canvas {
   <div class="invite">
     <h2>Wedding Day</h2>
     <p>17 / 07 / 2027</p>
-    <p>Моринское агроусадьба</p>
   </div>
 </div>
 
@@ -148,23 +140,25 @@ function createComet() {
   comets.push({
     x: Math.random() * w * 0.7,
     y: -50,
-    vx: 1.2,   // скорость по X
-    vy: 1.2,   // скорость по Y (угол 45°)
+    vx: 1.2,
+    vy: 1.2,
     length: 120
   });
 }
 
-/* 🎯 клик */
+/* ✅ КЛИК РАБОТАЕТ */
 canvas.addEventListener('click', (e) => {
-  const mx = e.clientX;
-  const my = e.clientY;
+
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
 
   comets.forEach(c => {
     const dx = mx - c.x;
     const dy = my - c.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
 
-    if (dist < 40) { // зона клика увеличена
+    if (dist < 50) { // увеличили зону
       openOverlay();
     }
   });
@@ -185,7 +179,6 @@ function draw() {
   // кометы
   comets.forEach((c, i) => {
 
-    // хвост
     const gradient = ctx.createLinearGradient(
       c.x, c.y,
       c.x - c.length, c.y - c.length
@@ -202,11 +195,9 @@ function draw() {
     ctx.lineTo(c.x - c.length, c.y - c.length);
     ctx.stroke();
 
-    // движение (медленное!)
     c.x += c.vx;
     c.y += c.vy;
 
-    // удаление
     if (c.y > h + 100) {
       comets.splice(i, 1);
     }
@@ -216,21 +207,7 @@ function draw() {
 }
 draw();
 
-/* ⏳ таймер */
-const countdown = document.getElementById('countdown');
-const weddingDate = new Date('2027-07-17T16:00:00');
-
-function updateCountdown() {
-  const diff = weddingDate - new Date();
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor(diff / (1000*60*60)) % 24;
-
-  countdown.innerHTML = days + " дней " + hours + " часов";
-}
-setInterval(updateCountdown, 1000);
-updateCountdown();
-
-/* ☄️ чаще, но красиво */
+/* запуск */
 setInterval(() => {
   if (Math.random() > 0.4) {
     createComet();
