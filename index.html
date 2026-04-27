@@ -26,43 +26,61 @@ body {
   z-index: -1;
 }
 
-/* контент */
+/* контейнер */
 .container {
   position: relative;
   z-index: 1;
-  text-align: center;
 }
 
+/* HERO */
 .hero {
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  text-align: center;
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 4em;
   margin: 0;
+  letter-spacing: 2px;
 }
 
 .hero p {
+  margin-top: 20px;
   opacity: 0.7;
 }
 
-/* секции */
+/* СЕКЦИИ */
 .section {
-  padding: 100px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 20px;
+  text-align: center;
 }
 
+/* карточки */
 .block {
-  max-width: 600px;
-  margin: auto;
   background: rgba(255,255,255,0.05);
-  padding: 30px;
+  padding: 40px;
   border-radius: 20px;
   backdrop-filter: blur(10px);
+  line-height: 1.6;
+}
+
+/* анимация */
+.fade {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: 1s ease;
+}
+
+.fade.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
 </head>
@@ -73,14 +91,39 @@ body {
 
 <div class="container">
 
+  <!-- HERO -->
   <div class="hero">
     <h1>Марта & Максим</h1>
     <p>17 июля 2027</p>
   </div>
 
-  <div class="section">
+  <!-- БЛОК 1 -->
+  <div class="section fade">
     <div class="block">
-      <p>Мы будем рады видеть вас на нашей свадьбе</p>
+      <p>
+        Всё началось с одного взгляда.  
+        И вдруг обычные дни стали особенными.
+      </p>
+    </div>
+  </div>
+
+  <!-- БЛОК 2 -->
+  <div class="section fade">
+    <div class="block">
+      <p>
+        Мы нашли друг друга —  
+        и теперь хотим разделить этот день с вами.
+      </p>
+    </div>
+  </div>
+
+  <!-- БЛОК 3 -->
+  <div class="section fade">
+    <div class="block">
+      <p>
+        Когда солнце скроется за горизонтом,  
+        начнётся наша новая история.
+      </p>
     </div>
   </div>
 
@@ -102,79 +145,32 @@ window.onload = function() {
   resize();
   window.addEventListener('resize', resize);
 
-  // 🖱 мышь
-  let mouseX = w / 2;
-  let mouseY = h / 2;
-
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  // ⭐ звезды
+  // звезды
   let stars = [];
-  for (let i = 0; i < 160; i++) {
+
+  for (let i = 0; i < 120; i++) {
     stars.push({
       x: Math.random() * w,
       y: Math.random() * h,
       size: Math.random() * 1.5,
-      depth: Math.random()
+      speed: Math.random() * 0.2
     });
   }
-
-  // 🌠 метеоры
-  let meteors = [];
-
-  function createMeteor() {
-    meteors.push({
-      x: Math.random() * w,
-      y: -50,
-      length: Math.random() * 120 + 80,
-      speed: Math.random() * 6 + 4,
-      life: 1
-    });
-  }
-
-  setInterval(createMeteor, 3000);
 
   function draw() {
     ctx.clearRect(0, 0, w, h);
 
-    // ⭐ звезды (параллакс)
     stars.forEach(s => {
-      const dx = (mouseX - w/2) * 0.05 * s.depth;
-      const dy = (mouseY - h/2) * 0.05 * s.depth;
-
       ctx.beginPath();
-      ctx.arc(s.x + dx, s.y + dy, s.size, 0, Math.PI * 2);
+      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(255,255,255,0.8)";
       ctx.fill();
-    });
 
-    // 🌠 метеоры (красивые)
-    meteors.forEach((m, i) => {
+      s.y += s.speed;
 
-      const gradient = ctx.createLinearGradient(
-        m.x, m.y,
-        m.x - m.length, m.y + m.length
-      );
-
-      gradient.addColorStop(0, "rgba(255,255,255,1)");
-      gradient.addColorStop(1, "rgba(255,255,255,0)");
-
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(m.x - m.length, m.y + m.length);
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      m.x += m.speed;
-      m.y += m.speed;
-      m.life -= 0.02;
-
-      if (m.life <= 0 || m.y > h) {
-        meteors.splice(i, 1);
+      if (s.y > h) {
+        s.y = 0;
+        s.x = Math.random() * w;
       }
     });
 
@@ -182,6 +178,19 @@ window.onload = function() {
   }
 
   draw();
+
+  // появление блоков
+  const fades = document.querySelectorAll('.fade');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  });
+
+  fades.forEach(el => obs.observe(el));
 };
 </script>
 
