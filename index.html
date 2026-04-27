@@ -26,6 +26,7 @@ body {
   z-index: -1;
 }
 
+/* контейнер */
 .container {
   position: relative;
   z-index: 1;
@@ -53,6 +54,14 @@ body {
   opacity: 0.7;
 }
 
+/* ⏳ таймер */
+.countdown {
+  margin-top: 20px;
+  font-size: 2em;
+  letter-spacing: 2px;
+  font-weight: 300;
+}
+
 /* СЕКЦИИ */
 .section {
   max-width: 800px;
@@ -68,10 +77,9 @@ body {
   border-radius: 20px;
   backdrop-filter: blur(10px);
   line-height: 1.6;
-  transition: 0.6s;
 }
 
-/* ✨ АНИМАЦИЯ (круче чем просто fade) */
+/* ✨ анимация */
 .fade {
   opacity: 0;
   transform: translateY(60px) scale(0.98);
@@ -84,11 +92,6 @@ body {
   filter: blur(0);
   transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-/* задержка для “каскада” */
-.fade:nth-child(1) { transition-delay: 0.1s; }
-.fade:nth-child(2) { transition-delay: 0.3s; }
-.fade:nth-child(3) { transition-delay: 0.5s; }
 
 /* RSVP */
 .rsvp input {
@@ -129,6 +132,7 @@ body {
   <div class="hero">
     <h1>Марта & Максим</h1>
     <p>17 июля 2027</p>
+    <div class="countdown" id="countdown"></div>
   </div>
 
   <!-- БЛОКИ -->
@@ -224,15 +228,43 @@ window.onload = function() {
   });
 
   fades.forEach(el => obs.observe(el));
+
+  // ⏳ таймер
+  const countdown = document.getElementById('countdown');
+  const weddingDate = new Date('2027-07-17T16:00:00');
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = weddingDate - now;
+
+    if (diff <= 0) {
+      countdown.innerHTML = "Этот день настал 💜";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+    const minutes = Math.floor(diff / (1000 * 60)) % 60;
+
+    countdown.innerHTML =
+      days + " дней " +
+      hours + " часов " +
+      minutes + " минут";
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 };
 
-// 💌 кнопка (пока локально)
+// 💌 RSVP
 function send() {
   const name = document.getElementById('name').value;
+
   if(!name) {
     alert("Введите имя 😊");
     return;
   }
+
   alert("Спасибо, " + name + " 💜");
 }
 </script>
