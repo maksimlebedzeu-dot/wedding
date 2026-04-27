@@ -3,161 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Марта & Максим — 17.07.2027</title>
+<title>Марта & Максим</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
 body {
   margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  background: #0a0a14;
+  font-family: 'Inter', sans-serif;
+  background: #07070d;
   color: white;
   overflow-x: hidden;
 }
 
-/* Туман */
-.fog {
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
-  animation: fogMove 60s linear infinite;
-  z-index: 0;
-}
-
-@keyframes fogMove {
-  from { transform: translate(-20%, -20%); }
-  to { transform: translate(20%, 20%); }
-}
-
-/* Частицы */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 0;
-}
-
-header {
+/* HERO */
+.hero {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
   position: relative;
-  z-index: 1;
 }
 
-h1 {
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(120,100,255,0.25), transparent 70%);
+  filter: blur(120px);
+}
+
+.hero h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 4em;
+  font-size: 5em;
+  letter-spacing: 3px;
+  margin: 0;
 }
 
-section {
-  padding: 80px 20px;
+.hero p {
+  margin-top: 20px;
+  opacity: 0.7;
+  font-size: 1.2em;
+}
+
+/* SECTION */
+.section {
+  padding: 120px 20px;
   max-width: 900px;
   margin: auto;
-  position: relative;
-  z-index: 1;
 }
 
-.card {
-  background: rgba(255,255,255,0.05);
-  padding: 30px;
-  border-radius: 20px;
-  backdrop-filter: blur(15px);
+.fade {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: 1.2s ease;
 }
 
-input, button {
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: none;
+.fade.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
+/* BLOCK */
+.block {
+  margin-top: 40px;
+  padding: 40px;
+  border-radius: 25px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+}
+
+/* COUNTDOWN */
+.countdown {
+  font-size: 2em;
+  margin-top: 20px;
+  letter-spacing: 2px;
+}
+
+/* BUTTON */
 button {
-  background: #8e7dff;
+  margin-top: 20px;
+  padding: 14px 28px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(45deg, #7b6cff, #9d8cff);
   color: white;
   cursor: pointer;
+  font-size: 1em;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(140,120,255,0.5);
+}
+
+/* INPUT */
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 10px;
+  width: 250px;
+  background: rgba(255,255,255,0.08);
+  color: white;
 }
 </style>
 </head>
 
 <body>
 
-<div class="fog"></div>
-<canvas id="particles"></canvas>
+<div class="hero">
+  <div>
+    <h1>Марта & Максим</h1>
+    <p>17 июля 2027</p>
+    <div class="countdown" id="countdown"></div>
+  </div>
+</div>
 
-<header>
-  <h1>Марта & Максим</h1>
-  <p>17 июля 2027</p>
-</header>
+<div class="section fade">
+  <h2>Это началось в один обычный день…</h2>
+  <div class="block">
+    <p>И стало историей, которую мы хотим разделить с вами.</p>
+  </div>
+</div>
 
-<section>
-  <div class="card">
-    <h2>Подтвердите присутствие</h2>
+<div class="section fade">
+  <h2>Детали вечера</h2>
+  <div class="block">
+    <p>Моринское агроусадьба</p>
+    <p>Начало в 16:00</p>
+  </div>
+</div>
+
+<div class="section fade">
+  <h2>Будете с нами?</h2>
+  <div class="block">
     <input id="name" placeholder="Ваше имя">
     <br>
     <button onclick="send()">Я приду</button>
   </div>
-</section>
+</div>
 
 <script>
-/* Частицы */
-const canvas = document.getElementById('particles');
-const ctx = canvas.getContext('2d');
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let particles = [];
-
-for (let i = 0; i < 80; i++) {
-  particles.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    r: Math.random()*2,
-    dx: Math.random()*0.5,
-    dy: Math.random()*0.5
+/* появление блоков */
+const fades = document.querySelectorAll('.fade');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) e.target.classList.add('visible');
   });
-}
+});
+fades.forEach(el => obs.observe(el));
 
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle = "white";
-    ctx.fill();
+/* таймер */
+const countdown = document.getElementById('countdown');
+const weddingDate = new Date('2027-07-17');
 
-    p.x += p.dx;
-    p.y += p.dy;
+setInterval(() => {
+  const now = new Date();
+  const diff = weddingDate - now;
 
-    if (p.x > canvas.width) p.x = 0;
-    if (p.y > canvas.height) p.y = 0;
-  });
-  requestAnimationFrame(draw);
-}
-draw();
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor(diff / (1000*60*60)) % 24;
 
-/* Telegram */
+  countdown.innerHTML = days + " дней " + hours + " часов";
+}, 1000);
+
+/* кнопка */
 function send() {
   const name = document.getElementById('name').value;
-
-  const token = "ТВОЙ_BOT_TOKEN";
-  const chat_id = "ТВОЙ_CHAT_ID";
-
-  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      chat_id: chat_id,
-      text: "Гость: " + name
-    })
-  });
-
-  alert("Спасибо! Мы получили ваш ответ 💜");
+  alert("Спасибо, " + name + " 💜");
 }
 </script>
 
