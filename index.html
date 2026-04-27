@@ -16,14 +16,10 @@ body {
   overflow-x: hidden;
 }
 
-/* 🌌 фон */
-#stars {
+canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -2;
 }
 
 /* секции */
@@ -33,6 +29,8 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
+  z-index: 1;
+  position: relative;
 }
 
 .hero h1 {
@@ -45,37 +43,11 @@ body {
   font-size: 1.3em;
 }
 
-/* блок */
 .block {
   background: rgba(255,255,255,0.06);
   padding: 50px;
   border-radius: 20px;
   backdrop-filter: blur(12px);
-}
-
-/* анимация */
-.fade {
-  opacity: 0;
-  transform: translateY(60px);
-}
-
-.fade.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: 1s ease;
-}
-
-/* ☄️ КОМЕТА */
-.comet {
-  position: fixed;
-  width: 2px;
-  height: 120px;
-  background: linear-gradient(to top, white, transparent);
-  transform: rotate(45deg); /* ✅ теперь совпадает с движением */
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: 100;
-  opacity: 0.9;
 }
 
 /* overlay */
@@ -88,7 +60,7 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 200;
+  z-index: 10;
 }
 
 .overlay.active {
@@ -101,7 +73,6 @@ body {
   padding: 30px;
   border-radius: 20px;
   text-align: center;
-  max-width: 400px;
 }
 
 .close {
@@ -116,29 +87,28 @@ body {
 
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="canvas"></canvas>
 
-<div class="section hero fade">
+<div class="section hero">
   <div>
     <h1>Марта & Максим</h1>
     <p>17 июля 2027</p>
-    <div class="countdown" id="countdown"></div>
+    <div id="countdown"></div>
   </div>
 </div>
 
-<div class="section fade">
+<div class="section">
   <div class="block">Всё началось с одного взгляда</div>
 </div>
 
-<div class="section fade">
+<div class="section">
   <div class="block">Мы нашли друг друга</div>
 </div>
 
-<div class="section fade">
+<div class="section">
   <div class="block">И хотим разделить этот день с вами</div>
 </div>
 
-<!-- 💌 overlay -->
 <div class="overlay" id="overlay">
   <div class="close" onclick="closeOverlay()">←</div>
   <div class="invite">
@@ -149,8 +119,7 @@ body {
 </div>
 
 <script>
-/* ⭐ фон */
-const canvas = document.getElementById('stars');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 let w, h;
@@ -162,30 +131,84 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
+/* ⭐ звезды */
 let stars = [];
-
-for (let i = 0; i < 120; i++) {
+for (let i = 0; i < 150; i++) {
   stars.push({
     x: Math.random() * w,
     y: Math.random() * h,
-    size: Math.random() * 1.5,
-    speed: Math.random() * 0.2
+    size: Math.random() * 1.5
   });
 }
 
+/* ☄️ кометы */
+let comets = [];
+
+function createComet() {
+  comets.push({
+    x: Math.random() * w * 0.7,
+    y: -50,
+    vx: 1.2,   // скорость по X
+    vy: 1.2,   // скорость по Y (угол 45°)
+    length: 120
+  });
+}
+
+/* 🎯 клик */
+canvas.addEventListener('click', (e) => {
+  const mx = e.clientX;
+  const my = e.clientY;
+
+  comets.forEach(c => {
+    const dx = mx - c.x;
+    const dy = my - c.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 40) { // зона клика увеличена
+      openOverlay();
+    }
+  });
+});
+
+/* 🎬 отрисовка */
 function draw() {
   ctx.clearRect(0, 0, w, h);
 
+  // звезды
   stars.forEach(s => {
     ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
     ctx.fillStyle = "white";
     ctx.fill();
+  });
 
-    s.y += s.speed;
-    if (s.y > h) {
-      s.y = 0;
-      s.x = Math.random() * w;
+  // кометы
+  comets.forEach((c, i) => {
+
+    // хвост
+    const gradient = ctx.createLinearGradient(
+      c.x, c.y,
+      c.x - c.length, c.y - c.length
+    );
+
+    gradient.addColorStop(0, "white");
+    gradient.addColorStop(1, "transparent");
+
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(c.x, c.y);
+    ctx.lineTo(c.x - c.length, c.y - c.length);
+    ctx.stroke();
+
+    // движение (медленное!)
+    c.x += c.vx;
+    c.y += c.vy;
+
+    // удаление
+    if (c.y > h + 100) {
+      comets.splice(i, 1);
     }
   });
 
@@ -207,59 +230,12 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-/* ✨ появление */
-const fades = document.querySelectorAll('.fade');
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(e.isIntersecting) e.target.classList.add('visible');
-  });
-});
-fades.forEach(el => obs.observe(el));
-
-/* ☄️ КОМЕТА — ИСПРАВЛЕННАЯ */
-function createComet() {
-
-  const comet = document.createElement('div');
-  comet.className = 'comet';
-
-  let x = Math.random() * window.innerWidth * 0.8;
-  let y = -100;
-
-  comet.style.left = x + 'px';
-  comet.style.top = y + 'px';
-
-  document.body.appendChild(comet);
-
-  const speed = 1.5 + Math.random(); // медленно
-
-  function animate() {
-    x += speed;
-    y += speed;
-
-    comet.style.left = x + 'px';
-    comet.style.top = y + 'px';
-
-    if (y < window.innerHeight + 100) {
-      requestAnimationFrame(animate);
-    } else {
-      comet.remove();
-    }
-  }
-
-  animate();
-
-  // ✅ КЛИК РАБОТАЕТ
-  comet.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openOverlay();
-    comet.remove();
-  });
-}
-
-/* ✅ ЧАЩЕ */
+/* ☄️ чаще, но красиво */
 setInterval(() => {
-  createComet();
-}, 4000); // каждые 4 секунды
+  if (Math.random() > 0.4) {
+    createComet();
+  }
+}, 3000);
 
 /* overlay */
 function openOverlay() {
