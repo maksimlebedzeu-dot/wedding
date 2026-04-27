@@ -30,8 +30,8 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  z-index: 1;
   position: relative;
+  z-index: 1;
 }
 
 .hero h1 {
@@ -39,48 +39,57 @@ body {
   font-size: 4em;
 }
 
-.block {
-  background: rgba(255,255,255,0.06);
-  padding: 50px;
-  border-radius: 20px;
-  backdrop-filter: blur(12px);
-}
-
-/* 💥 FLASH */
+/* 💥 мягкая вспышка */
 .flash {
   position: fixed;
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: radial-gradient(circle, white, transparent);
+  background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%);
   pointer-events: none;
-  z-index: 9;
-  animation: flashAnim 0.6s ease-out forwards;
+  z-index: 8;
+  animation: flashSoft 0.8s ease-out forwards;
 }
 
-@keyframes flashAnim {
+@keyframes flashSoft {
   0% {
     transform: scale(1);
-    opacity: 1;
+    opacity: 0.9;
   }
   100% {
-    transform: scale(15);
+    transform: scale(25);
     opacity: 0;
   }
 }
 
-/* ✉️ OVERLAY */
+/* 🌑 затемнение сцены */
+.fade-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9;
+  transition: opacity 0.6s ease;
+}
+
+.fade-screen.active {
+  opacity: 0.7;
+}
+
+/* ✉️ overlay */
 .overlay {
   position: fixed;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(12px);
   display: none;
   justify-content: center;
   align-items: center;
-  perspective: 1000px;
   z-index: 10;
+  perspective: 1000px;
 }
 
 .overlay.active {
@@ -96,7 +105,6 @@ body {
   animation: openLetter 1s ease forwards;
 }
 
-/* “обложка” */
 .front, .back {
   position: absolute;
   width: 100%;
@@ -105,7 +113,6 @@ body {
   backface-visibility: hidden;
 }
 
-/* передняя сторона */
 .front {
   background: #e8e2d8;
   display: flex;
@@ -115,7 +122,6 @@ body {
   font-size: 24px;
 }
 
-/* внутренняя */
 .back {
   background: #f5f2ec;
   color: #222;
@@ -125,13 +131,14 @@ body {
   text-align: center;
 }
 
-/* анимация раскрытия */
 @keyframes openLetter {
   from {
-    transform: rotateY(0deg);
+    transform: rotateY(0deg) scale(0.9);
+    opacity: 0;
   }
   to {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) scale(1);
+    opacity: 1;
   }
 }
 
@@ -147,6 +154,7 @@ body {
 <body>
 
 <canvas id="canvas"></canvas>
+<div class="fade-screen" id="fadeScreen"></div>
 
 <div class="section hero">
   <div>
@@ -156,26 +164,23 @@ body {
 </div>
 
 <div class="section">
-  <div class="block">Всё началось с одного взгляда</div>
+  <div>Всё началось с одного взгляда</div>
 </div>
 
 <div class="section">
-  <div class="block">Мы нашли друг друга</div>
+  <div>Мы нашли друг друга</div>
 </div>
 
 <div class="section">
-  <div class="block">И хотим разделить этот день с вами</div>
+  <div>И хотим разделить этот день с вами</div>
 </div>
 
-<!-- ✉️ OVERLAY -->
+<!-- ✉️ -->
 <div class="overlay" id="overlay">
   <div class="close" onclick="closeOverlay()">←</div>
 
   <div class="letter">
-    <div class="front">
-      Приглашение
-    </div>
-
+    <div class="front">Приглашение</div>
     <div class="back">
       <h2>Wedding Day</h2>
       <p>17 / 07 / 2027</p>
@@ -200,7 +205,7 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-/* ⭐ звезды */
+/* ⭐ */
 let stars = [];
 for (let i = 0; i < 150; i++) {
   stars.push({
@@ -210,7 +215,7 @@ for (let i = 0; i < 150; i++) {
   });
 }
 
-/* ☄️ кометы */
+/* ☄️ */
 let comets = [];
 
 function createComet() {
@@ -223,21 +228,19 @@ function createComet() {
   });
 }
 
-/* 💥 вспышка */
-function createFlash(x, y) {
-  const flash = document.createElement('div');
-  flash.className = 'flash';
-  flash.style.left = x + 'px';
-  flash.style.top = y + 'px';
+/* 💥 мягкая вспышка */
+function flash(x, y) {
+  const el = document.createElement('div');
+  el.className = 'flash';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
 
-  document.body.appendChild(flash);
-
-  setTimeout(() => flash.remove(), 600);
+  setTimeout(() => el.remove(), 800);
 }
 
 /* 🎯 клик */
 canvas.addEventListener('click', (e) => {
-
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
@@ -248,13 +251,21 @@ canvas.addEventListener('click', (e) => {
     const dist = Math.sqrt(dx*dx + dy*dy);
 
     if (dist < 50) {
-      createFlash(mx, my);
-      setTimeout(() => openOverlay(), 300);
+
+      flash(mx, my);
+
+      // затемнение
+      document.getElementById('fadeScreen').classList.add('active');
+
+      // переход к письму
+      setTimeout(() => {
+        openOverlay();
+      }, 500);
     }
   });
 });
 
-/* 🎬 отрисовка */
+/* 🎬 */
 function draw() {
   ctx.clearRect(0, 0, w, h);
 
@@ -266,49 +277,37 @@ function draw() {
   });
 
   comets.forEach((c, i) => {
+    const g = ctx.createLinearGradient(c.x, c.y, c.x-120, c.y-120);
+    g.addColorStop(0,"white");
+    g.addColorStop(1,"transparent");
 
-    const gradient = ctx.createLinearGradient(
-      c.x, c.y,
-      c.x - c.length, c.y - c.length
-    );
-
-    gradient.addColorStop(0, "white");
-    gradient.addColorStop(1, "transparent");
-
-    ctx.strokeStyle = gradient;
+    ctx.strokeStyle = g;
     ctx.lineWidth = 2;
 
     ctx.beginPath();
     ctx.moveTo(c.x, c.y);
-    ctx.lineTo(c.x - c.length, c.y - c.length);
+    ctx.lineTo(c.x-120, c.y-120);
     ctx.stroke();
 
     c.x += c.vx;
     c.y += c.vy;
 
-    if (c.y > h + 100) {
-      comets.splice(i, 1);
-    }
+    if (c.y > h+100) comets.splice(i,1);
   });
 
   requestAnimationFrame(draw);
 }
 draw();
 
-/* запуск комет */
-setInterval(() => {
-  if (Math.random() > 0.4) {
-    createComet();
-  }
-}, 3000);
+setInterval(()=>{ if(Math.random()>0.4) createComet(); },3000);
 
-/* overlay */
-function openOverlay() {
+function openOverlay(){
   document.getElementById('overlay').classList.add('active');
 }
 
-function closeOverlay() {
+function closeOverlay(){
   document.getElementById('overlay').classList.remove('active');
+  document.getElementById('fadeScreen').classList.remove('active');
 }
 </script>
 
