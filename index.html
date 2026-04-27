@@ -23,7 +23,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -2;
 }
 
 /* контейнер */
@@ -32,92 +32,109 @@ body {
   z-index: 1;
 }
 
-/* HERO */
-.hero {
+/* HERO и секции — 100vh */
+.section {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  padding: 40px;
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 4em;
   margin: 0;
-  letter-spacing: 2px;
 }
 
-.hero p {
-  margin-top: 20px;
-  opacity: 0.7;
-}
-
-/* ⏳ таймер */
 .countdown {
   margin-top: 15px;
-  font-size: 1.4em;
-  letter-spacing: 1px;
+  font-size: 1.3em;
   opacity: 0.8;
 }
 
-/* СЕКЦИИ — увеличили расстояние */
-.section {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 200px 20px;
-  text-align: center;
-}
-
-/* карточки */
+/* карточка */
 .block {
-  background: rgba(255,255,255,0.05);
-  padding: 40px;
+  background: rgba(255,255,255,0.06);
+  padding: 50px;
   border-radius: 20px;
-  backdrop-filter: blur(10px);
-  line-height: 1.6;
+  backdrop-filter: blur(12px);
+  max-width: 600px;
 }
 
 /* ✨ анимация */
 .fade {
   opacity: 0;
-  transform: translateY(80px) scale(0.96);
-  filter: blur(12px);
+  transform: translateY(60px);
 }
 
 .fade.visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-  transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateY(0);
+  transition: 1s ease;
 }
 
-/* RSVP */
-.rsvp input {
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  margin-top: 15px;
-  width: 250px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-}
-
-.rsvp button {
-  margin-top: 15px;
-  padding: 12px 24px;
-  border-radius: 25px;
-  border: none;
-  background: linear-gradient(45deg, #7b6cff, #9d8cff);
-  color: white;
+/* ☄️ комета */
+.comet {
+  position: fixed;
+  width: 3px;
+  height: 80px;
+  background: linear-gradient(white, transparent);
+  opacity: 0.8;
+  pointer-events: auto;
   cursor: pointer;
-  transition: 0.3s;
+  transform: rotate(45deg);
+  z-index: 2;
 }
 
-.rsvp button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(140,120,255,0.5);
+/* 💌 оверлей */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+/* карточка приглашения */
+.invite {
+  background: #f5f2ec;
+  color: #222;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0 }
+  to { transform: scale(1); opacity: 1 }
+}
+
+.invite h2 {
+  font-family: 'Playfair Display', serif;
+  margin-top: 0;
+}
+
+.close {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  font-size: 24px;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -129,147 +146,160 @@ body {
 <div class="container">
 
   <!-- HERO -->
-  <div class="hero">
-    <h1>Марта & Максим</h1>
-    <p>17 июля 2027</p>
-    <div class="countdown" id="countdown"></div>
+  <div class="section hero fade">
+    <div>
+      <h1>Марта & Максим</h1>
+      <p>17 июля 2027</p>
+      <div class="countdown" id="countdown"></div>
+    </div>
   </div>
 
   <!-- БЛОКИ -->
   <div class="section fade">
     <div class="block">
-      <p>Всё началось с одного взгляда. И вдруг обычные дни стали особенными.</p>
+      Всё началось с одного взгляда
     </div>
   </div>
 
   <div class="section fade">
     <div class="block">
-      <p>Мы нашли друг друга — и теперь хотим разделить этот день с вами.</p>
+      Мы нашли друг друга
     </div>
   </div>
 
   <div class="section fade">
     <div class="block">
-      <p>Когда солнце скроется за горизонтом, начнётся наша новая история.</p>
-    </div>
-  </div>
-
-  <!-- RSVP -->
-  <div class="section fade">
-    <div class="block rsvp">
-      <p>Будете с нами в этот день?</p>
-      <input id="name" placeholder="Ваше имя">
-      <br>
-      <button onclick="send()">Я приду</button>
+      И хотим разделить этот день с вами
     </div>
   </div>
 
 </div>
 
+<!-- 💌 ОВЕРЛЕЙ -->
+<div class="overlay" id="overlay">
+  <div class="close" onclick="closeOverlay()">←</div>
+  <div class="invite">
+    <h2>Wedding Day</h2>
+    <p>17 / 07 / 2027</p>
+    <p>Моринское агроусадьба</p>
+    <p>15:30 — сбор гостей</p>
+    <p>16:00 — церемония</p>
+    <p>18:30 — банкет</p>
+  </div>
+</div>
+
 <script>
-window.onload = function() {
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
 
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
+let w, h;
 
-  let w, h;
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
 
-  function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-  }
+/* ⭐ звезды */
+let stars = [];
+for (let i = 0; i < 120; i++) {
+  stars.push({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    size: Math.random() * 1.5,
+    speed: Math.random() * 0.2
+  });
+}
 
-  resize();
-  window.addEventListener('resize', resize);
+function draw() {
+  ctx.clearRect(0, 0, w, h);
 
-  let stars = [];
+  stars.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
 
-  for (let i = 0; i < 120; i++) {
-    stars.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      size: Math.random() * 1.5,
-      speed: Math.random() * 0.2
-    });
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-
-    stars.forEach(s => {
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
-      ctx.fill();
-
-      s.y += s.speed;
-
-      if (s.y > h) {
-        s.y = 0;
-        s.x = Math.random() * w;
-      }
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  draw();
-
-  const fades = document.querySelectorAll('.fade');
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-
-        const el = entry.target;
-        const index = [...fades].indexOf(el);
-
-        setTimeout(() => {
-          el.classList.add('visible');
-        }, index * 300);
-
-        observer.unobserve(el);
-      }
-    });
-  }, { threshold: 0.2 });
-
-  fades.forEach(el => observer.observe(el));
-
-  const countdown = document.getElementById('countdown');
-  const weddingDate = new Date('2027-07-17T16:00:00');
-
-  function updateCountdown() {
-    const now = new Date();
-    const diff = weddingDate - now;
-
-    if (diff <= 0) {
-      countdown.innerHTML = "Этот день настал 💜";
-      return;
+    s.y += s.speed;
+    if (s.y > h) {
+      s.y = 0;
+      s.x = Math.random() * w;
     }
+  });
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
-    const minutes = Math.floor(diff / (1000 * 60)) % 60;
+  requestAnimationFrame(draw);
+}
+draw();
 
-    countdown.innerHTML =
-      days + " дней " +
-      hours + " часов " +
-      minutes + " минут";
+/* ⏳ таймер */
+const countdown = document.getElementById('countdown');
+const weddingDate = new Date('2027-07-17T16:00:00');
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = weddingDate - now;
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor(diff / (1000*60*60)) % 24;
+
+  countdown.innerHTML = days + " дней " + hours + " часов";
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* ✨ появление */
+const fades = document.querySelectorAll('.fade');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+    }
+  });
+});
+
+fades.forEach(el => observer.observe(el));
+
+/* ☄️ КОМЕТЫ */
+function createComet() {
+  const comet = document.createElement('div');
+  comet.className = 'comet';
+
+  comet.style.top = Math.random()*window.innerHeight + 'px';
+  comet.style.left = Math.random()*window.innerWidth + 'px';
+
+  document.body.appendChild(comet);
+
+  let pos = 0;
+
+  const interval = setInterval(() => {
+    pos += 10;
+    comet.style.transform = `translate(${pos}px, ${pos}px) rotate(45deg)`;
+
+    if (pos > 600) {
+      clearInterval(interval);
+      comet.remove();
+    }
+  }, 16);
+
+  comet.onclick = () => openOverlay();
+}
+
+/* случайный запуск */
+setInterval(() => {
+  if (Math.random() > 0.5) {
+    createComet();
   }
+}, 5000);
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-};
+/* 💌 overlay */
+function openOverlay() {
+  document.getElementById('overlay').classList.add('active');
+}
 
-function send() {
-  const name = document.getElementById('name').value;
-
-  if(!name) {
-    alert("Введите имя 😊");
-    return;
-  }
-
-  alert("Спасибо, " + name + " 💜");
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('active');
 }
 </script>
 
