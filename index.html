@@ -135,6 +135,7 @@ window.onload = function() {
   const ctx = canvas.getContext('2d');
 
   let w, h;
+
   function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
@@ -142,46 +143,71 @@ window.onload = function() {
   resize();
   window.addEventListener('resize', resize);
 
-  // 🖱 положение мыши
+  // 🖱 мышь (с плавностью как у Apple)
   let mouseX = w / 2;
   let mouseY = h / 2;
+  let smoothX = mouseX;
+  let smoothY = mouseY;
 
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
   });
 
-  // ✨ звезды с глубиной
+  // ✨ ЗВЁЗДЫ (3 слоя глубины)
   let stars = [];
 
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 180; i++) {
+    const depth = Math.random();
     stars.push({
       x: Math.random() * w,
       y: Math.random() * h,
-      size: Math.random() * 2,
-      speed: Math.random() * 0.2,
-      depth: Math.random() * 1 // глубина слоя
+      size: depth * 2 + 0.5,
+      speed: depth * 0.5 + 0.05,
+      depth: depth
     });
   }
 
+  // 🌠 падающие звезды
+  let meteors = [];
+
+  function createMeteor() {
+    meteors.push({
+      x: Math.random() * w,
+      y: 0,
+      length: 200,
+      speed: 6,
+      opacity: 1
+    });
+  }
+
+  setInterval(() => {
+    if (Math.random() < 0.3) createMeteor();
+  }, 2000);
+
   function draw() {
+
     ctx.clearRect(0, 0, w, h);
 
+    // плавность движения мыши
+    smoothX += (mouseX - smoothX) * 0.05;
+    smoothY += (mouseY - smoothY) * 0.05;
+
+    // 🌌 звезды
     stars.forEach(s => {
 
-      // 🎯 параллакс (магия)
-      const parallaxX = (mouseX - w/2) * 0.0005 * (s.depth * 50);
-      const parallaxY = (mouseY - h/2) * 0.0005 * (s.depth * 50);
+      // усиленный параллакс
+      const offsetX = (smoothX - w/2) * s.depth * 0.03;
+      const offsetY = (smoothY - h/2) * s.depth * 0.03;
 
-      let x = s.x + parallaxX;
-      let y = s.y + parallaxY;
+      const x = s.x + offsetX;
+      const y = s.y + offsetY;
 
       ctx.beginPath();
       ctx.arc(x, y, s.size, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(255,255,255,0.8)";
       ctx.fill();
 
-      // медленное движение вниз
       s.y += s.speed;
 
       if (s.y > h) {
@@ -190,11 +216,38 @@ window.onload = function() {
       }
     });
 
+    // 🌠 метеоры
+    meteors.forEach((m, i) => {
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x - m.length, m.y - m.length);
+      ctx.strokeStyle = "rgba(255,255,255," + m.opacity + ")";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      m.x += m.speed;
+      m.y += m.speed;
+      m.opacity -= 0.02;
+
+      if (m.opacity <= 0) meteors.splice(i, 1);
+    });
+
+    // 💡 glow вокруг курсора
+    const gradient = ctx.createRadialGradient(
+      smoothX, smoothY, 0,
+      smoothX, smoothY, 200
+    );
+
+    gradient.addColorStop(0, "rgba(140,120,255,0.15)");
+    gradient.addColorStop(1, "transparent");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, w, h);
+
     requestAnimationFrame(draw);
   }
 
   draw();
-
 };
 </script>
 
