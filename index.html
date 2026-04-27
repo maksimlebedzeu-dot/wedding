@@ -1,53 +1,72 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Марта & Максим — 17.07.2027</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(#0f0f1a, #1c1c2e);
-      color: #f5f5f5;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Марта & Максим — 17.07.2027</title>
 
-```
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #0a0a14;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* Туман */
+.fog {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
+  animation: fogMove 60s linear infinite;
+  z-index: 0;
+}
+
+@keyframes fogMove {
+  from { transform: translate(-20%, -20%); }
+  to { transform: translate(20%, 20%); }
+}
+
+/* Частицы */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
 header {
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at center, #2c2c54, #0f0f1a);
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 3.5em;
-  margin: 0;
-}
-
-h2 {
-  font-weight: 300;
-  margin-top: 10px;
+  font-size: 4em;
 }
 
 section {
-  padding: 60px 20px;
-  max-width: 800px;
+  padding: 80px 20px;
+  max-width: 900px;
   margin: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.05);
   padding: 30px;
   border-radius: 20px;
-  margin-top: 20px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
 }
 
 input, button {
@@ -55,8 +74,6 @@ input, button {
   margin-top: 10px;
   border-radius: 10px;
   border: none;
-  width: 80%;
-  max-width: 300px;
 }
 
 button {
@@ -64,61 +81,85 @@ button {
   color: white;
   cursor: pointer;
 }
-
-footer {
-  padding: 30px;
-  font-size: 0.9em;
-  opacity: 0.6;
-}
-```
-
-  </style>
+</style>
 </head>
+
 <body>
+
+<div class="fog"></div>
+<canvas id="particles"></canvas>
 
 <header>
   <h1>Марта & Максим</h1>
-  <h2>17 июля 2027</h2>
-  <p>Мы приглашаем вас разделить с нами этот волшебный вечер</p>
+  <p>17 июля 2027</p>
 </header>
 
 <section>
-  <h2>О событии</h2>
   <div class="card">
-    <p>Наша свадьба пройдет в атмосферной усадьбе, где свет заката плавно перейдет в теплый вечер и огни праздника.</p>
-    <p><strong>Место:</strong> Моринское агроусадьба</p>
-  </div>
-</section>
-
-<section>
-  <h2>Тайминг</h2>
-  <div class="card">
-    <p>16:00 — Сбор гостей</p>
-    <p>17:00 — Церемония</p>
-    <p>18:00 — Ужин</p>
-    <p>20:00 — Танцы и праздник</p>
-  </div>
-</section>
-
-<section>
-  <h2>Дресс-код</h2>
-  <div class="card">
-    <p>Мы будем рады, если вы поддержите атмосферу вечера: темные оттенки, глубокие цвета, легкий блеск.</p>
-  </div>
-</section>
-
-<section>
-  <h2>Подтвердите присутствие</h2>
-  <div class="card">
-    <input type="text" placeholder="Ваше имя">
+    <h2>Подтвердите присутствие</h2>
+    <input id="name" placeholder="Ваше имя">
     <br>
-    <button>Я приду</button>
+    <button onclick="send()">Я приду</button>
   </div>
 </section>
 
-<footer>
-  <p>С любовью, Марта и Максим</p>
-</footer>
+<script>
+/* Частицы */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*2,
+    dx: Math.random()*0.5,
+    dy: Math.random()*0.5
+  });
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y > canvas.height) p.y = 0;
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* Telegram */
+function send() {
+  const name = document.getElementById('name').value;
+
+  const token = "ТВОЙ_BOT_TOKEN";
+  const chat_id = "ТВОЙ_CHAT_ID";
+
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      chat_id: chat_id,
+      text: "Гость: " + name
+    })
+  });
+
+  alert("Спасибо! Мы получили ваш ответ 💜");
+}
+</script>
 
 </body>
 </html>
