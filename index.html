@@ -21,7 +21,10 @@ canvas {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* ВАЖНО */
+  pointer-events: none; /* чтобы не ломал клики */
 }
 
 /* HERO */
@@ -135,7 +138,6 @@ window.onload = function() {
   const ctx = canvas.getContext('2d');
 
   let w, h;
-
   function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
@@ -143,28 +145,25 @@ window.onload = function() {
   resize();
   window.addEventListener('resize', resize);
 
-  // 🖱 мышь (с плавностью как у Apple)
+  // 🖱 мышь (центр по умолчанию)
   let mouseX = w / 2;
   let mouseY = h / 2;
-  let smoothX = mouseX;
-  let smoothY = mouseY;
 
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
   });
 
-  // ✨ ЗВЁЗДЫ (3 слоя глубины)
+  // ✨ звезды
   let stars = [];
 
   for (let i = 0; i < 180; i++) {
-    const depth = Math.random();
     stars.push({
       x: Math.random() * w,
       y: Math.random() * h,
-      size: depth * 2 + 0.5,
-      speed: depth * 0.5 + 0.05,
-      depth: depth
+      size: Math.random() * 1.5,
+      speed: Math.random() * 0.3,
+      depth: Math.random() * 1
     });
   }
 
@@ -175,33 +174,24 @@ window.onload = function() {
     meteors.push({
       x: Math.random() * w,
       y: 0,
-      length: 200,
-      speed: 6,
-      opacity: 1
+      length: Math.random() * 80 + 50,
+      speed: Math.random() * 6 + 4
     });
   }
 
-  setInterval(() => {
-    if (Math.random() < 0.3) createMeteor();
-  }, 2000);
+  setInterval(createMeteor, 3000);
 
   function draw() {
-
     ctx.clearRect(0, 0, w, h);
 
-    // плавность движения мыши
-    smoothX += (mouseX - smoothX) * 0.05;
-    smoothY += (mouseY - smoothY) * 0.05;
-
-    // 🌌 звезды
+    // ⭐ звезды
     stars.forEach(s => {
 
-      // усиленный параллакс
-      const offsetX = (smoothX - w/2) * s.depth * 0.03;
-      const offsetY = (smoothY - h/2) * s.depth * 0.03;
+      const dx = (mouseX - w/2) * 0.02 * s.depth;
+      const dy = (mouseY - h/2) * 0.02 * s.depth;
 
-      const x = s.x + offsetX;
-      const y = s.y + offsetY;
+      let x = s.x + dx;
+      let y = s.y + dy;
 
       ctx.beginPath();
       ctx.arc(x, y, s.size, 0, Math.PI * 2);
@@ -209,7 +199,6 @@ window.onload = function() {
       ctx.fill();
 
       s.y += s.speed;
-
       if (s.y > h) {
         s.y = 0;
         s.x = Math.random() * w;
@@ -220,29 +209,16 @@ window.onload = function() {
     meteors.forEach((m, i) => {
       ctx.beginPath();
       ctx.moveTo(m.x, m.y);
-      ctx.lineTo(m.x - m.length, m.y - m.length);
-      ctx.strokeStyle = "rgba(255,255,255," + m.opacity + ")";
+      ctx.lineTo(m.x - m.length, m.y + m.length);
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
       ctx.lineWidth = 2;
       ctx.stroke();
 
       m.x += m.speed;
       m.y += m.speed;
-      m.opacity -= 0.02;
 
-      if (m.opacity <= 0) meteors.splice(i, 1);
+      if (m.y > h) meteors.splice(i, 1);
     });
-
-    // 💡 glow вокруг курсора
-    const gradient = ctx.createRadialGradient(
-      smoothX, smoothY, 0,
-      smoothX, smoothY, 200
-    );
-
-    gradient.addColorStop(0, "rgba(140,120,255,0.15)");
-    gradient.addColorStop(1, "transparent");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, w, h);
 
     requestAnimationFrame(draw);
   }
