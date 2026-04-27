@@ -54,12 +54,12 @@ body {
   opacity: 0.7;
 }
 
-/* ⏳ таймер */
+/* ⏳ таймер (меньше, чем дата) */
 .countdown {
-  margin-top: 20px;
-  font-size: 2em;
-  letter-spacing: 2px;
-  font-weight: 300;
+  margin-top: 15px;
+  font-size: 1.4em;
+  letter-spacing: 1px;
+  opacity: 0.8;
 }
 
 /* СЕКЦИИ */
@@ -82,8 +82,8 @@ body {
 /* ✨ анимация */
 .fade {
   opacity: 0;
-  transform: translateY(60px) scale(0.98);
-  filter: blur(10px);
+  transform: translateY(80px) scale(0.96);
+  filter: blur(12px);
 }
 
 .fade.visible {
@@ -216,18 +216,26 @@ window.onload = function() {
 
   draw();
 
-  // ✨ появление блоков
+  // ✨ каскадное появление
   const fades = document.querySelectorAll('.fade');
 
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if(e.isIntersecting) {
-        e.target.classList.add('visible');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+
+        const el = entry.target;
+        const index = [...fades].indexOf(el);
+
+        setTimeout(() => {
+          el.classList.add('visible');
+        }, index * 300);
+
+        observer.unobserve(el);
       }
     });
-  });
+  }, { threshold: 0.2 });
 
-  fades.forEach(el => obs.observe(el));
+  fades.forEach(el => observer.observe(el));
 
   // ⏳ таймер
   const countdown = document.getElementById('countdown');
