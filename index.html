@@ -26,44 +26,34 @@ body {
   z-index: -2;
 }
 
-/* контейнер */
-.container {
-  position: relative;
-  z-index: 1;
-}
-
-/* HERO и секции — 100vh */
+/* секции */
 .section {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 40px;
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 4em;
-  margin: 0;
 }
 
 .countdown {
   margin-top: 15px;
   font-size: 1.3em;
-  opacity: 0.8;
 }
 
-/* карточка */
+/* блок */
 .block {
   background: rgba(255,255,255,0.06);
   padding: 50px;
   border-radius: 20px;
   backdrop-filter: blur(12px);
-  max-width: 600px;
 }
 
-/* ✨ анимация */
+/* анимация */
 .fade {
   opacity: 0;
   transform: translateY(60px);
@@ -78,55 +68,38 @@ body {
 /* ☄️ комета */
 .comet {
   position: fixed;
-  width: 3px;
-  height: 80px;
-  background: linear-gradient(white, transparent);
-  opacity: 0.8;
+  width: 2px;
+  height: 120px;
+  background: linear-gradient(to bottom, white, transparent);
+  transform: rotate(-45deg);
   pointer-events: auto;
   cursor: pointer;
-  transform: rotate(45deg);
-  z-index: 2;
+  z-index: 5;
+  opacity: 0.9;
 }
 
-/* 💌 оверлей */
+/* overlay */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
   backdrop-filter: blur(10px);
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 10;
 }
 
 .overlay.active {
   display: flex;
 }
 
-/* карточка приглашения */
 .invite {
   background: #f5f2ec;
   color: #222;
-  width: 90%;
-  max-width: 400px;
   padding: 30px;
   border-radius: 20px;
   text-align: center;
-  animation: scaleIn 0.5s ease;
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0 }
-  to { transform: scale(1); opacity: 1 }
-}
-
-.invite h2 {
-  font-family: 'Playfair Display', serif;
-  margin-top: 0;
 }
 
 .close {
@@ -143,52 +116,37 @@ body {
 
 <canvas id="stars"></canvas>
 
-<div class="container">
-
-  <!-- HERO -->
-  <div class="section hero fade">
-    <div>
-      <h1>Марта & Максим</h1>
-      <p>17 июля 2027</p>
-      <div class="countdown" id="countdown"></div>
-    </div>
+<div class="section hero fade">
+  <div>
+    <h1>Марта & Максим</h1>
+    <p>17 июля 2027</p>
+    <div class="countdown" id="countdown"></div>
   </div>
-
-  <!-- БЛОКИ -->
-  <div class="section fade">
-    <div class="block">
-      Всё началось с одного взгляда
-    </div>
-  </div>
-
-  <div class="section fade">
-    <div class="block">
-      Мы нашли друг друга
-    </div>
-  </div>
-
-  <div class="section fade">
-    <div class="block">
-      И хотим разделить этот день с вами
-    </div>
-  </div>
-
 </div>
 
-<!-- 💌 ОВЕРЛЕЙ -->
+<div class="section fade">
+  <div class="block">Всё началось с одного взгляда</div>
+</div>
+
+<div class="section fade">
+  <div class="block">Мы нашли друг друга</div>
+</div>
+
+<div class="section fade">
+  <div class="block">И хотим разделить этот день с вами</div>
+</div>
+
 <div class="overlay" id="overlay">
   <div class="close" onclick="closeOverlay()">←</div>
   <div class="invite">
     <h2>Wedding Day</h2>
     <p>17 / 07 / 2027</p>
     <p>Моринское агроусадьба</p>
-    <p>15:30 — сбор гостей</p>
-    <p>16:00 — церемония</p>
-    <p>18:30 — банкет</p>
   </div>
 </div>
 
 <script>
+/* ⭐ звезды */
 const canvas = document.getElementById('stars');
 const ctx = canvas.getContext('2d');
 
@@ -201,8 +159,8 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-/* ⭐ звезды */
 let stars = [];
+
 for (let i = 0; i < 120; i++) {
   stars.push({
     x: Math.random() * w,
@@ -237,9 +195,7 @@ const countdown = document.getElementById('countdown');
 const weddingDate = new Date('2027-07-17T16:00:00');
 
 function updateCountdown() {
-  const now = new Date();
-  const diff = weddingDate - now;
-
+  const diff = weddingDate - new Date();
   const days = Math.floor(diff / (1000*60*60*24));
   const hours = Math.floor(diff / (1000*60*60)) % 24;
 
@@ -250,50 +206,60 @@ updateCountdown();
 
 /* ✨ появление */
 const fades = document.querySelectorAll('.fade');
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting){
-      entry.target.classList.add('visible');
-    }
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) e.target.classList.add('visible');
   });
 });
+fades.forEach(el => obs.observe(el));
 
-fades.forEach(el => observer.observe(el));
-
-/* ☄️ КОМЕТЫ */
+/* ☄️ НОРМАЛЬНАЯ КОМЕТА */
 function createComet() {
+
   const comet = document.createElement('div');
   comet.className = 'comet';
 
-  comet.style.top = Math.random()*window.innerHeight + 'px';
-  comet.style.left = Math.random()*window.innerWidth + 'px';
+  // старт вне экрана
+  let startX = Math.random() * window.innerWidth;
+  let startY = -100;
+
+  comet.style.left = startX + 'px';
+  comet.style.top = startY + 'px';
 
   document.body.appendChild(comet);
 
-  let pos = 0;
+  let x = startX;
+  let y = startY;
 
-  const interval = setInterval(() => {
-    pos += 10;
-    comet.style.transform = `translate(${pos}px, ${pos}px) rotate(45deg)`;
+  const speed = 2 + Math.random(); // МЕДЛЕННО
 
-    if (pos > 600) {
-      clearInterval(interval);
+  function animate() {
+    x += speed;
+    y += speed;
+
+    comet.style.left = x + 'px';
+    comet.style.top = y + 'px';
+
+    if (y < window.innerHeight + 100) {
+      requestAnimationFrame(animate);
+    } else {
       comet.remove();
     }
-  }, 16);
+  }
+
+  animate();
 
   comet.onclick = () => openOverlay();
 }
 
-/* случайный запуск */
+/* реже и естественно */
 setInterval(() => {
-  if (Math.random() > 0.5) {
+  if (Math.random() > 0.6) {
     createComet();
   }
-}, 5000);
+}, 7000);
 
-/* 💌 overlay */
+/* overlay */
 function openOverlay() {
   document.getElementById('overlay').classList.add('active');
 }
