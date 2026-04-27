@@ -134,39 +134,59 @@ window.onload = function() {
   const canvas = document.getElementById('stars');
   const ctx = canvas.getContext('2d');
 
+  let w, h;
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
   }
-
   resize();
   window.addEventListener('resize', resize);
 
+  // 🖱 положение мыши
+  let mouseX = w / 2;
+  let mouseY = h / 2;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  // ✨ звезды с глубиной
   let stars = [];
 
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 150; i++) {
     stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * w,
+      y: Math.random() * h,
       size: Math.random() * 2,
-      speed: Math.random() * 0.3
+      speed: Math.random() * 0.2,
+      depth: Math.random() * 1 // глубина слоя
     });
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, w, h);
 
     stars.forEach(s => {
+
+      // 🎯 параллакс (магия)
+      const parallaxX = (mouseX - w/2) * 0.0005 * (s.depth * 50);
+      const parallaxY = (mouseY - h/2) * 0.0005 * (s.depth * 50);
+
+      let x = s.x + parallaxX;
+      let y = s.y + parallaxY;
+
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fillStyle = "white";
+      ctx.arc(x, y, s.size, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
       ctx.fill();
 
+      // медленное движение вниз
       s.y += s.speed;
 
-      if (s.y > canvas.height) {
+      if (s.y > h) {
         s.y = 0;
-        s.x = Math.random() * canvas.width;
+        s.x = Math.random() * w;
       }
     });
 
